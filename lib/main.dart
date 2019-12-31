@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'clock.dart';
@@ -101,9 +102,9 @@ class ClockTheme extends ControlTheme {
 
   final deviceRadius = 32.0;
 
-  double get secondsProgressInset => 3.0;
+  double get secondsProgressInset => kIsWeb ? 8.0 : 4.0;
 
-  double get hoursProgressInset => device.min * 0.0625;
+  double get hoursProgressInset => (device.min - midSizeBorder) * 0.25;
 
   double get midSize => device.min * 0.65;
 
@@ -118,12 +119,6 @@ class ClockTheme extends ControlTheme {
   final fontName = 'Oswald';
 
   ClockTheme(BuildContext context) : super(context);
-}
-
-extension DeviceExtension on Device {
-  double lineHeight(TextStyle style, {double size, double height, bool scaleFactor: false, double lines: 1.0}) {
-    return (size ?? style.fontSize) * (height ?? style.height ?? 1.0) * (scaleFactor ? data.textScaleFactor : 1.0) * lines;
-  }
 }
 
 extension ColorExtension on Color {

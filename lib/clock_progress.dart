@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
+
 import 'core.dart';
 
 class ClockProgress extends StatefulWidget {
@@ -117,15 +119,21 @@ class ClockProgressPainter extends CustomPainter {
     final startAngle = -math.pi * 0.5;
     final endAngle = math.pi * 2.0 * progress;
 
-    final paint = Paint()
-      ..shader = SweepGradient(
-        startAngle: endAngle * reverseProgress,
-        endAngle: endAngle,
-        colors: colors,
-        stops: stops,
-        tileMode: TileMode.clamp,
-        transform: GradientRotation(startAngle),
-      ).createShader(rect);
+    Paint paint;
+
+    if (kIsWeb) {
+      paint = Paint()..color = colors.last;
+    } else {
+      paint = Paint()
+        ..shader = SweepGradient(
+          startAngle: endAngle * reverseProgress,
+          endAngle: endAngle,
+          colors: colors,
+          stops: stops,
+          tileMode: TileMode.clamp,
+          transform: GradientRotation(startAngle),
+        ).createShader(rect);
+    }
 
     canvas.drawArc(
       rect,

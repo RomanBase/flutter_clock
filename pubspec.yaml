@@ -15,7 +15,7 @@ dependencies:
       url: git://github.com/flutter/flutter_clock.git
       path: flutter_clock_helper
 
-  flutter_control: 0.15.1+6
+  flutter_control: 0.15.1+7
 
 dev_dependencies:
   flutter_test:
