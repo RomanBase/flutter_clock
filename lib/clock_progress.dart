@@ -87,7 +87,6 @@ class _ClockProgressState extends State<ClockProgress> with TickerProviderStateM
           foregroundPainter: ClockProgressPainter(
             _progress.evaluate(_progressController),
             _reverse ? _progressController.value : 0.0,
-            //widget.colors,
             ColorUtil.lerpColors(_colors, widget.colors, _progressController.value),
             widget.stops,
           ),
