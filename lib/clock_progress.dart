@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:clock/theme.dart';
 import 'package:flutter/foundation.dart';
 
 import 'core.dart';
@@ -28,6 +29,7 @@ class ClockProgress extends StatefulWidget {
 
 class _ClockProgressState extends State<ClockProgress> with TickerProviderStateMixin {
   Tween<double> _progress;
+  List<Color> _colors;
 
   bool _reverse = false;
 
@@ -37,6 +39,7 @@ class _ClockProgressState extends State<ClockProgress> with TickerProviderStateM
   void initState() {
     super.initState();
 
+    _colors = widget.colors;
     _progress = Tween<double>(begin: 0.0, end: widget.progress);
 
     _progressController = AnimationController(duration: const Duration(seconds: 1), vsync: this);
@@ -67,6 +70,7 @@ class _ClockProgressState extends State<ClockProgress> with TickerProviderStateM
 
     if (!_reverse) {
       _progress = Tween<double>(begin: oldWidget.progress, end: widget.progress);
+      _colors = oldWidget.colors;
 
       _progressController.forward(from: 0.0);
     }
@@ -83,7 +87,8 @@ class _ClockProgressState extends State<ClockProgress> with TickerProviderStateM
           foregroundPainter: ClockProgressPainter(
             _progress.evaluate(_progressController),
             _reverse ? _progressController.value : 0.0,
-            widget.colors,
+            //widget.colors,
+            ColorUtil.lerpColors(_colors, widget.colors, _progressController.value),
             widget.stops,
           ),
           child: widget.child,

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:clock/clock_progress.dart';
-import 'package:clock/main.dart';
+import 'package:clock/theme.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_control/core.dart';
 import 'package:intl/intl.dart';
@@ -22,29 +22,65 @@ class ClockControl extends BaseController with StateController {
   Timer _timer;
   DateTime _time;
 
-  @override
-  void onInit(Map args) {
-    super.onInit(args);
+  DynamicTheme get _theme => ControlProvider.get<DynamicTheme>();
 
-    model = args.getArg<ClockModel>();
+  void _testTimelapse() async {
+    _time = DateTime(2020);
 
-    assert(model != null);
+    while (true) {
+      date.value = DateFormat('EEE dd.MM.').format(_time);
+      hour.value = DateFormat(model.is24HourFormat ? 'HH' : 'hh').format(_time);
+      minute.value = DateFormat('mm').format(_time);
 
+      hProgress.value = ((_time.hour >= 12 ? _time.hour - 12 : _time.hour) * 3600 + _time.minute * 60) / (12.0 * 3600.0);
+      mProgress.value = (_time.minute * 60 + _time.second) / 3600.0;
+      sProgress.value = _time.second / 60.0;
+
+      model.temperature = -20 + 60 * (_time.hour >= 12 ? 1.0 - hProgress.value : hProgress.value);
+
+      await Future.delayed(Duration(seconds: 1));
+
+      _time = _time.add(Duration(minutes: 15, seconds: 30));
+    }
+  }
+
+  void _testProgress() {
     date.value = 'Sun 00.00.';
     hour.value = '00';
     minute.value = '00';
 
     hProgress.value = 0.75;
     mProgress.value = 0.875;
+  }
 
-    _tick();
+  @override
+  void onInit(Map args) {
+    super.onInit(args);
+
+    _time = DateTime.now();
+    model = args.getArg<ClockModel>();
+
+    assert(model != null);
+
+    minute.subscribe((value) => _theme.updateDaytimeColor(_time));
+    model.addListener(() {
+      if (model.unit == TemperatureUnit.fahrenheit) {
+        _theme.updateTemperatureColor((model.temperature - 32.0) * 5.0 / 9.0);
+      } else {
+        _theme.updateTemperatureColor(model.temperature);
+      }
+    });
+
+    //_tick();
+    //_testProgress();
+    _testTimelapse();
   }
 
   void _tick() {
     _time = DateTime.now();
 
     date.value = DateFormat('EEE dd.MM.').format(_time);
-    hour.value = DateFormat(model.is24HourFormat ? 'HH' : 'hh').format(_time);
+    hour.value = DateFormat(model.is24HourFormat ? 'H' : 'h').format(_time);
     minute.value = DateFormat('mm').format(_time);
 
     hProgress.value = ((_time.hour >= 12 ? _time.hour - 12 : _time.hour) * 3600 + _time.minute * 60) / (12.0 * 3600.0);
@@ -94,7 +130,7 @@ class Clock extends SingleControlWidget<ClockControl> with ThemeProvider<ClockTh
             FieldBuilder<double>(
               controller: controller.sProgress,
               builder: (context, value) => ClockProgress(
-                colors: theme.progressGradientLight,
+                colors: theme.daytimeGradient,
                 stops: theme.gradientStops,
                 progress: value,
               ),
@@ -112,7 +148,7 @@ class Clock extends SingleControlWidget<ClockControl> with ThemeProvider<ClockTh
             FieldBuilder<double>(
               controller: controller.mProgress,
               builder: (context, value) => ClockProgress(
-                colors: theme.progressGradientDark,
+                colors: theme.temperatureGradient,
                 stops: theme.gradientStops,
                 radius: theme.deviceRadius,
                 padding: EdgeInsets.all(theme.secondsProgressInset),
@@ -134,7 +170,7 @@ class Clock extends SingleControlWidget<ClockControl> with ThemeProvider<ClockTh
             FieldBuilder<double>(
               controller: controller.hProgress,
               builder: (context, value) => ClockProgress(
-                colors: theme.progressGradient,
+                colors: theme.daytimeGradient,
                 stops: theme.gradientStops,
                 radius: theme.deviceRadius,
                 padding: EdgeInsets.all(theme.hoursProgressInset),
