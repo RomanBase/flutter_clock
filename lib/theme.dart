@@ -41,7 +41,7 @@ class DynamicTheme extends BaseModel {
     );
   }
 
-  //TODO: api, not eligible in competition..
+  //TODO: api not eligible in competition..
   void updateTemperatureColor(double celsius) {
     // -15 - 0 - 25 - 35
     final min = 15.0;

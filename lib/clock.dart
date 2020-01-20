@@ -36,21 +36,26 @@ class ClockControl extends BaseController with StateController {
       mProgress.value = (_time.minute * 60 + _time.second) / 3600.0;
       sProgress.value = _time.second / 60.0;
 
-      model.temperature = -20 + 60 * (_time.hour >= 12 ? 1.0 - hProgress.value : hProgress.value);
-
       await Future.delayed(Duration(seconds: 1));
 
       _time = _time.add(Duration(minutes: 15, seconds: 30));
+      model.temperature = -20 + 60 * (_time.hour >= 12 ? 1.0 - hProgress.value : hProgress.value);
     }
   }
 
   void _testProgress() {
-    date.value = 'Sun 00.00.';
-    hour.value = '00';
-    minute.value = '00';
+    _time = DateTime(2020, 1, 20, 4, 40, 42);
 
-    hProgress.value = 0.75;
-    mProgress.value = 0.875;
+    date.value = DateFormat('EEE, MMM dd').format(_time);
+    hour.value = DateFormat(model.is24HourFormat ? 'H' : 'h').format(_time);
+    minute.value = DateFormat('mm').format(_time);
+
+    hProgress.value = ((_time.hour >= 12 ? _time.hour - 12 : _time.hour) * 3600 + _time.minute * 60) / (12.0 * 3600.0);
+    mProgress.value = (_time.minute * 60 + _time.second) / 3600.0;
+    sProgress.value = _time.second / 60.0;
+
+    model.temperature = -20 + 60 * (_time.hour >= 12 ? 1.0 - hProgress.value : hProgress.value);
+    _theme.update(_time, model.temperature);
   }
 
   @override
@@ -71,15 +76,15 @@ class ClockControl extends BaseController with StateController {
       }
     });
 
-    //_tick();
+    _tick();
     //_testProgress();
-    _testTimelapse();
+    //_testTimelapse();
   }
 
   void _tick() {
     _time = DateTime.now();
 
-    date.value = DateFormat('EEE dd.MM.').format(_time);
+    date.value = DateFormat('EEE, MMM dd').format(_time);
     hour.value = DateFormat(model.is24HourFormat ? 'H' : 'h').format(_time);
     minute.value = DateFormat('mm').format(_time);
 

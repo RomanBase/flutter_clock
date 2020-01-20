@@ -85,10 +85,10 @@ class _ClockProgressState extends State<ClockProgress> with TickerProviderStateM
         borderRadius: BorderRadius.circular(widget.radius),
         child: CustomPaint(
           foregroundPainter: ClockProgressPainter(
-            _progress.evaluate(_progressController),
-            _reverse ? _progressController.value : 0.0,
-            ColorUtil.lerpColors(_colors, widget.colors, _progressController.value),
-            widget.stops,
+            progress: _progress.evaluate(_progressController),
+            reverseProgress: _reverse ? _progressController.value : 0.0,
+            colors: ColorUtil.lerpColors(_colors, widget.colors, _progressController.value),
+            stops: widget.stops,
           ),
           child: widget.child,
         ),
@@ -103,12 +103,12 @@ class ClockProgressPainter extends CustomPainter {
   final List<Color> colors;
   final List<double> stops;
 
-  ClockProgressPainter(
-    this.progress,
-    this.reverseProgress,
-    this.colors,
+  ClockProgressPainter({
+    this.progress: 0.0,
+    this.reverseProgress: 0.0,
+    @required this.colors,
     this.stops,
-  );
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -126,6 +126,7 @@ class ClockProgressPainter extends CustomPainter {
     Paint paint;
 
     if (kIsWeb) {
+      // Shader is broken on web :(
       paint = Paint()..color = colors.last;
     } else {
       paint = Paint()
